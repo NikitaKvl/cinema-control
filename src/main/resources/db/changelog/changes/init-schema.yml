@@ -1,0 +1,339 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-cinema-halls
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: cinema_halls
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: capacity
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: create-table-movie-sessions
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: movie_sessions
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: movie_id
+                  type: BIGINT
+              - column:
+                  name: cinema_hall_id
+                  type: BIGINT
+              - column:
+                  name: show_time
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: create-table-movies
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: movies
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: create-table-orders
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: order_time
+                  type: TIMESTAMP
+              - column:
+                  name: user_id
+                  type: BIGINT
+
+  - changeSet:
+      id: create-table-orders-tickets
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: orders_tickets
+            columns:
+              - column:
+                  name: order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ticket_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+            primaryKey:
+              name: pk_orders_tickets
+              columnNames:
+                - order_id
+                - ticket_id
+
+  - changeSet:
+      id: create-table-roles
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: role_name
+                  type: VARCHAR(255)
+            comment: "Roles for users"
+
+  - changeSet:
+      id: insert-roles-data
+      author: mykyta_koval
+      changes:
+        - sql:
+            sql: "INSERT INTO public.roles (role_name) VALUES ('ADMIN')"
+        - sql:
+            sql: "INSERT INTO public.roles (role_name) VALUES ('USER')"
+
+  - changeSet:
+      id: create-table-shopping-carts
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: shopping_carts
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+
+  - changeSet:
+      id: create-table-shopping-carts-tickets
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: shopping_carts_tickets
+            columns:
+              - column:
+                  name: shopping_cart_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ticket_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+            primaryKey:
+              name: pk_shopping_carts_tickets
+              columnNames:
+                - shopping_cart_id
+                - ticket_id
+
+  - changeSet:
+      id: create-table-tickets
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: tickets
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: movie_session_id
+                  type: BIGINT
+              - column:
+                  name: user_id
+                  type: BIGINT
+
+  - changeSet:
+      id: create-table-users
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: create-table-users-roles
+      author: mykyta_koval
+      changes:
+        - createTable:
+            tableName: users_roles
+            columns:
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+            primaryKey:
+              name: pk_users_roles
+              columnNames:
+                - role_id
+                - user_id
+
+  - changeSet:
+      id: add-foreign-keys
+      author: mykyta_koval
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: movie_sessions
+            baseColumnNames: cinema_hall_id
+            referencedTableName: cinema_halls
+            referencedColumnNames: id
+            constraintName: FK_MOVIE_SESSIONS_ON_CINEMA_HALL
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: movie_sessions
+            baseColumnNames: movie_id
+            referencedTableName: movies
+            referencedColumnNames: id
+            constraintName: FK_MOVIE_SESSIONS_ON_MOVIE
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: orders
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: FK_ORDERS_ON_USER
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: shopping_carts
+            baseColumnNames: id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: FK_SHOPPING_CARTS_ON_ID
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: tickets
+            baseColumnNames: movie_session_id
+            referencedTableName: movie_sessions
+            referencedColumnNames: id
+            constraintName: FK_TICKETS_ON_MOVIE_SESSION
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: tickets
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: FK_TICKETS_ON_USER
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: orders_tickets
+            baseColumnNames: order_id
+            referencedTableName: orders
+            referencedColumnNames: id
+            constraintName: fk_ordtic_on_order
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: orders_tickets
+            baseColumnNames: ticket_id
+            referencedTableName: tickets
+            referencedColumnNames: id
+            constraintName: fk_ordtic_on_ticket
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: shopping_carts_tickets
+            baseColumnNames: shopping_cart_id
+            referencedTableName: shopping_carts
+            referencedColumnNames: id
+            constraintName: fk_shocartic_on_shopping_cart
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: shopping_carts_tickets
+            baseColumnNames: ticket_id
+            referencedTableName: tickets
+            referencedColumnNames: id
+            constraintName: fk_shocartic_on_ticket
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: users_roles
+            baseColumnNames: role_id
+            referencedTableName: roles
+            referencedColumnNames: id
+            constraintName: fk_userol_on_role
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: users_roles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_userol_on_user
+            onDelete: CASCADE
+            onUpdate: CASCADE
